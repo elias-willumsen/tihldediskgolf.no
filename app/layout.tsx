@@ -9,8 +9,8 @@ import AnimationToggle from "@/components/AnimationToggle";
 import BackgroundLayer from "@/components/BackgroundLayer"; // den er client component nå
 
 export const metadata: Metadata = {
-  title: "Disc Golf Results",
-  description: "Register and view disc golf results",
+  title: "TIHLDE Diskgolf",
+  description: "Ting",
 };
 
 export default function RootLayout({
