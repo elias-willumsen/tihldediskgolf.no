@@ -4,16 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
+type Player = { id: string; name: string };
 type ResultRow = {
   id: string;
   strokes: number;
   player_id: string;
-  player: { id: string; name: string } | null;
+  player: Player | null;
 };
-
 type GameRow = {
   id: string;
-  date: string; // ISO date
+  date: string; // ISO
   course: string;
   results: ResultRow[];
 };
@@ -26,10 +26,17 @@ export default function GamesPage() {
       const { data, error } = await supabase
         .from("games")
         .select(
-          "id,date,course,results(id,strokes,player_id,player:players(id,name))"
+          `
+          id, date, course,
+          results:game_results (
+            id, strokes, player_id,
+            player:players!game_results_player_id_fkey ( id, name )
+          )
+        `
         )
-        .order("date", { ascending: false });
-      if (!error) setGames((data || []) as GameRow[]);
+        .order("date", { ascending: false })
+        .returns<GameRow[]>();
+      if (!error && data) setGames(data);
     }
     loadGames();
   }, []);
