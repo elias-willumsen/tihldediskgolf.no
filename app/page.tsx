@@ -1,12 +1,8 @@
-import { Disc3 } from "lucide-react";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center">
-      <h1 className="flex items-center justify-center gap-3 text-5xl font-semibold">
-        <Disc3 className="h-[1em] w-[1em]" />
-        Tihlde diskgolf!
-      </h1>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <p>Add players, create games, and enter scores.</p>
     </div>
   );
 }
