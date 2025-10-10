@@ -1,27 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 type Player = { id: string; name: string };
 
 export default function ScoresForm({
   gameId,
   players,
+  onSaved,
 }: {
   gameId: string;
   players: Player[];
+  onSaved?: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
-    const response = await fetch("/api/results", {
-      method: "POST",
-      body: formData,
-    });
+
+    const upserts: Array<{
+      player_id: string;
+      game_id: string;
+      strokes: number;
+    }> = [];
+    for (const player of players) {
+      const value = formData.get(`score_${player.id}`);
+      if (value) {
+        const strokes = Number(value);
+        if (Number.isInteger(strokes) && strokes > 0) {
+          upserts.push({ player_id: player.id, game_id: gameId, strokes });
+        }
+      }
+    }
+
+    if (upserts.length > 0) {
+      const { error } = await supabase
+        .from("results")
+        .upsert(upserts, { onConflict: "player_id,game_id" });
+      if (error) alert(error.message);
+    }
+
     setIsSubmitting(false);
-    if (response.ok) location.reload();
-    else alert("Failed to save scores");
+    onSaved?.();
   }
 
   return (
@@ -29,14 +50,13 @@ export default function ScoresForm({
       action={handleSubmit}
       className="rounded border p-4 space-y-3 dark:border-gray-800"
     >
-      <input type="hidden" name="gameId" value={gameId} />
       <div className="font-medium">Enter scores</div>
       <div className="grid gap-2">
-        {players.map((p) => (
-          <label key={p.id} className="flex items-center gap-3">
-            <span className="min-w-40">{p.name}</span>
+        {players.map((player) => (
+          <label key={player.id} className="flex items-center gap-3">
+            <span className="min-w-40">{player.name}</span>
             <input
-              name={`score_${p.id}`}
+              name={`score_${player.id}`}
               type="number"
               min={1}
               placeholder="strokes"

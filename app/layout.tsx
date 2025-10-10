@@ -37,7 +37,7 @@ export default function RootLayout({
                     alt="logo"
                     width={40}
                     height={40}
-                    className="h-8 w-auto sm:h- rounded-4xl"
+                    className="h-8 w-auto sm:h-9 rounded-4xl motion-safe:hover:animate-spin motion-safe:active:animate-bounce"
                   />
                 </Link>
                 <nav className="ml-auto flex items-center gap-2">
