@@ -8,6 +8,9 @@ import ScoresForm from "./scores-form";
 type Player = { id: string; name: string };
 type Result = { id: string; strokes: number; player: Player | null };
 
+/*Fikser så Player kan være en array*/
+type RawResult = { id: string; strokes: number; player: Player[] | Player | null };
+
 export default function GameDetailPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const [game, setGame] = useState<{
@@ -35,7 +38,14 @@ export default function GameDetailPage() {
         ]);
       if (gameRows) setGame(gameRows);
       if (playerRows) setPlayers(playerRows as Player[]);
-      if (resultRows) setResults(resultRows as Result[]);
+      if (resultRows) {
+        const normalized: Result[] = (resultRows as RawResult[]).map((r) => ({
+        id: r.id,
+        strokes: r.strokes,
+        player: Array.isArray(r.player) ? r.player[0] ?? null : r.player,
+      }));
+      setResults(normalized);
+      }
     }
     loadAll();
   }, [gameId]);
@@ -64,7 +74,14 @@ export default function GameDetailPage() {
             .from("results")
             .select("id,strokes,player:players(id,name)")
             .eq("game_id", game.id);
-          setResults((data as Result[]) ?? []);
+
+          const normalized: Result[] = (data as RawResult[] | null)?.map((r) => ({
+            id: r.id,
+            strokes: r.strokes,
+            player: Array.isArray(r.player) ? r.player[0] ?? null : r.player,
+          })) ?? [];
+
+          setResults(normalized);
         }}
       />
 
