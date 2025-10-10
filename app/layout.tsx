@@ -6,7 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import AnimationProvider from "./animation-provider";
 import AnimationToggle from "@/components/AnimationToggle";
-import BackgroundLayer from "@/components/BackgroundLayer"; // <- client component
+import BackgroundLayer from "@/components/BackgroundLayer"; // den er client component nå
 
 export const metadata: Metadata = {
   title: "Disc Golf Results",

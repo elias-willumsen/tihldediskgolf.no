@@ -2,12 +2,12 @@
 import React, { useEffect, useRef } from "react";
 
 export type AnimatedBackgroundProps = {
-  particleCount?: number; // Default scales with viewport area
-  colorPalette?: string[]; // Any valid CSS color strings
-  enableMouseRepel?: boolean; // Mouse repels nearby particles
-  zIndex?: number; // Stacking context under UI
-  opacity?: number; // 0..1 global alpha
-  className?: string; // Extra classes if needed
+  particleCount?: number;
+  colorPalette?: string[];
+  enableMouseRepel?: boolean;
+  zIndex?: number;
+  opacity?: number;
+  className?: string;
 };
 
 export default function AnimatedBackground({
@@ -37,7 +37,6 @@ export default function AnimatedBackground({
     });
     if (!context) return;
 
-    // Respect reduced motion preference
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const setReduced = () => {
       isReducedMotionRef.current = mediaQuery.matches;
@@ -45,7 +44,6 @@ export default function AnimatedBackground({
     setReduced();
     mediaQuery.addEventListener?.("change", setReduced);
 
-    // Size and scale for HiDPI
     const devicePixelRatioValue = Math.min(window.devicePixelRatio || 1, 2);
     function resizeCanvas() {
       const { innerWidth, innerHeight } = window;
@@ -67,7 +65,6 @@ export default function AnimatedBackground({
 
     window.addEventListener("resize", resizeCanvas);
 
-    // Particle system
     type Particle = {
       x: number;
       y: number;
@@ -90,8 +87,8 @@ export default function AnimatedBackground({
     const particleArray: Particle[] = [];
 
     function computeDefaultParticleCount() {
-      const area = window.innerWidth * window.innerHeight; // pixels
-      // ~1 particle per 9,000 px, capped to avoid overload
+      const area = window.innerWidth * window.innerHeight;
+
       return Math.max(40, Math.min(220, Math.floor(area / 9000)));
     }
 
@@ -108,19 +105,18 @@ export default function AnimatedBackground({
       });
     }
 
-    // Gentle gradient backdrop
     function drawGradientBackdrop(timeMilliseconds: number) {
       const width = canvas.width / devicePixelRatioValue;
       const height = canvas.height / devicePixelRatioValue;
       if (context == null) return;
       const gradient = context.createLinearGradient(0, 0, width, height);
-      // Subtle hue shift over time
+
       const t = (timeMilliseconds * 0.00008) % 1;
       function lerp(a: number, b: number, u: number) {
         return a + (b - a) * u;
       }
-      const hueA = lerp(210, 300, t); // blue to purple
-      const hueB = lerp(160, 260, (t + 0.35) % 1); // teal to violet
+      const hueA = lerp(210, 300, t);
+      const hueB = lerp(160, 260, (t + 0.35) % 1);
       gradient.addColorStop(0, `hsla(${hueA}, 60%, 10%, ${opacity})`);
       gradient.addColorStop(1, `hsla(${hueB}, 60%, 8%, ${opacity})`);
 
@@ -128,9 +124,8 @@ export default function AnimatedBackground({
       context.fillRect(0, 0, width, height);
     }
 
-    // Particle links
     function drawLinks() {
-      const maxDistance = 120; // pixels
+      const maxDistance = 120;
       for (let i = 0; i < particleArray.length; i++) {
         for (let j = i + 1; j < particleArray.length; j++) {
           if (!context) return;
@@ -153,7 +148,6 @@ export default function AnimatedBackground({
     function step(timeMilliseconds: number) {
       if (!context) return;
       if (isReducedMotionRef.current) {
-        // Static gradient if user prefers reduced motion
         drawGradientBackdrop(0);
 
         for (const particle of particleArray) {
@@ -169,34 +163,29 @@ export default function AnimatedBackground({
 
       drawGradientBackdrop(timeMilliseconds);
 
-      // Mouse repel
       const hasMouse = enableMouseRepel && mouseRef.current.active;
       const repelRadius = 120;
       for (const particle of particleArray) {
-        // Simple motion
         particle.x += particle.velocityX;
         particle.y += particle.velocityY;
 
-        // Soft wrap edges
         if (particle.x < -10) particle.x = window.innerWidth + 10;
         if (particle.x > window.innerWidth + 10) particle.x = -10;
         if (particle.y < -10) particle.y = window.innerHeight + 10;
         if (particle.y > window.innerHeight + 10) particle.y = -10;
 
-        // Repel from mouse
         if (hasMouse) {
           const dx = particle.x - mouseRef.current.x;
           const dy = particle.y - mouseRef.current.y;
           const distance = Math.hypot(dx, dy);
           if (distance < repelRadius && distance > 0.0001) {
-            const force = (repelRadius - distance) / repelRadius; // 0..1
+            const force = (repelRadius - distance) / repelRadius;
             const unitX = dx / distance;
             const unitY = dy / distance;
             particle.x += unitX * force * 2.2;
             particle.y += unitY * force * 2.2;
           }
         }
-        // Draw particle
         context.fillStyle = particle.color;
         context.globalAlpha = 0.9;
         context.beginPath();
