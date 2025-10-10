@@ -1,17 +1,12 @@
-import { Disc3 } from "lucide-react";
-import ResultsBox from "../components/results-box";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center">
-      <div className="flex w-full max-w-5xl flex-col items-center gap-10 px-4">
-        <h1 className="flex items-center justify-center gap-3 text-5xl font-semibold">
-          <Disc3 className="h-[1em] w-[1em]" />
-          TIHLDE Diskgolf
-        </h1>
-
-        {/*Innhold og reultatboks*/}
-        <ResultsBox />
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">MVP app</h1>
+      <p>What the app can do:</p>
+      <div className="px-4">
+        <li>ADd players</li>
+        <li>Create games</li>
+        <li>Enter scores</li>
       </div>
     </div>
   );
